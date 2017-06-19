@@ -27,7 +27,7 @@
             <?php
                 foreach ($seasons as $season => $weather) {
                     if (isset($_POST['season']) && $_POST['season'] === $season) {
-                        $weather = $_POST['weather'];
+                        $weather = htmlentities($_POST['weather']);
                     }
             ?>
             <tr>
