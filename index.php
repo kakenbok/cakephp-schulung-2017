@@ -22,6 +22,9 @@
         <table class="table">
             <?php
                 foreach ($seasons as $season => $weather) {
+                    if ($_POST['season'] === $season) {
+                        $weather = $_POST['weather'];
+                    }
             ?>
             <tr>
                 <td><?= $season ?></td>
@@ -31,6 +34,20 @@
                 } // close foreach block
             ?>
         </table>
+
+        <p>Oder stimmt das nicht? Dann gib etwas anderes ein:</p>
+
+        <form method="POST" class="form-inline">
+            <select name="season" class="form-control">
+                <?php
+                    foreach (array_keys($seasons) as $season) {
+                        echo '<option>' . $season . '</option>';
+                    }
+                ?>
+            </select>
+            <input name="weather" class="form-control">
+            <button type="submit" class="btn btn-primary">Ändern</button>
+        </form>
 
         <button class="btn btn-primary" onclick="showWeather()">Wie wird das Wetter?</button>
 
