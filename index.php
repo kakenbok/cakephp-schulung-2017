@@ -26,7 +26,7 @@
         <table class="table">
             <?php
                 foreach ($seasons as $season => $weather) {
-                    if ($_POST['season'] === $season) {
+                    if (isset($_POST['season']) && $_POST['season'] === $season) {
                         $weather = $_POST['weather'];
                     }
             ?>
