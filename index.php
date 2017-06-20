@@ -1,8 +1,7 @@
 <?php
     ini_set('display_errors', 1);
 
-    $connection = mysqli_connect('localhost', 'root', 'root');
-    mysqli_select_db($connection, 'php_glossar');
+    $connection = mysqli_connect('localhost', 'root', 'root', 'php_glossar');
     mysqli_query($connection, "SET NAMES 'utf8'");
     $result = mysqli_query($connection, 'select * from glossar');
 ?>
