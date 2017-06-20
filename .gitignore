@@ -1,3 +1,4 @@
 .vscode
 vendor
 phinx.yml
+config.php

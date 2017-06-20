@@ -1,19 +1,33 @@
 <?php
     ini_set('display_errors', 1);
+    
+    require 'vendor/autoload.php';
+    $config = @include('config.php'); // @include = no warning if not exists, $config will be null then
 
-    $connection = mysqli_connect('localhost', 'root', 'root', 'php_glossar');
-    mysqli_query($connection, "SET NAMES 'utf8'");
+    use Medoo\Medoo;
+
+    $database = new Medoo([
+        'database_type' => 'mysql',
+        'database_name' => 'php_glossar',
+        'server' => 'localhost',
+        'username' => 'root',
+        'password' => 'root',
+        'charset' => 'utf8',
+        'port' => $config['database_port'] ?? 3306, // ??: if !isset(config[port]) take 3306
+    ]);
 
     $term = $_POST['term'] ?? null;
     $description = $_POST['description'] ?? null;
     if ($term && $description) {
-        mysqli_query($connection,
-            'insert into glossar (term, description) VALUES(\'' . $term . '\',\'' . $description . '\')');
+        $database->insert("glossar", [
+            'term' => $term,
+            'description' => $description
+        ]);
         header ('Location: /');
         exit;
     }
 
-    $result = mysqli_query($connection, 'select * from glossar');
+    $entries = $database->select('glossar', '*');
 ?>
 
 <html>
@@ -33,11 +47,11 @@
 
         <table class="table">
             <?php
-                while ($row = mysqli_fetch_assoc($result)) {
+                foreach ($entries as $entry) {
             ?>
             <tr>
-                <td><?= $row['term'] ?></td>
-                <td><?= $row['description'] ?></td>
+                <td><?= $entry['term'] ?></td>
+                <td><?= $entry['description'] ?></td>
             </tr>    
             <?php
                 } // close foreach block
@@ -53,7 +67,3 @@
     </body>
 
 </html>
-
-<?php
-    mysqli_close($connection);
-?>
