@@ -1,5 +1,6 @@
 <?php
     ini_set('display_errors', 1);
+    session_start();
     
     require 'vendor/autoload.php';
     $config = @include('config.php'); // @include = no warning if not exists, $config will be null then
@@ -16,16 +17,29 @@
         'port' => $config['database_port'] ?? 3306, // ??: if !isset(config[port]) take 3306
     ]);
 
-    $term = $_POST['term'] ?? null;
-    $description = $_POST['description'] ?? null;
-    if ($term && $description) {
-        $database->insert("glossar", [
-            'term' => $term,
-            'description' => $description
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // check authentication
+        $user = $database->select('name', 'users', [ // field, table, conditions
+            'sessionid' => session_id()
         ]);
-        header ('Location: /');
-        exit;
+        if (!$user) {
+            header('HTTP/1.1 403 Forbidden');
+            include('403.php');
+            exit;
+        }
+
+        $term = $_POST['term'] ?? null;
+        $description = $_POST['description'] ?? null;
+        if ($term && $description) {
+            $database->insert("glossar", [
+                'term' => $term,
+                'description' => $description
+            ]);
+            header ('Location: /');
+            exit;
+        }
     }
+
 
     $entries = $database->select('glossar', '*');
 ?>
