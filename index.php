@@ -3,6 +3,16 @@
 
     $connection = mysqli_connect('localhost', 'root', 'root', 'php_glossar');
     mysqli_query($connection, "SET NAMES 'utf8'");
+
+    $term = $_POST['term'] ?? null;
+    $description = $_POST['description'] ?? null;
+    if ($term && $description) {
+        mysqli_query($connection,
+            'insert into glossar (term, description) VALUES(\'' . $term . '\',\'' . $description . '\')');
+        header ('Location: /');
+        exit;
+    }
+
     $result = mysqli_query($connection, 'select * from glossar');
 ?>
 
@@ -33,6 +43,12 @@
                 } // close foreach block
             ?>
         </table>
+
+        <form method="POST">
+            Term: <input name="term">
+            Beschreibung: <input name="description">
+            <button type="submit">Eintragen</button>
+        </form>
 
     </body>
 
