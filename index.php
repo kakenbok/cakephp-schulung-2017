@@ -1,48 +1,4 @@
-<?php
-    ini_set('display_errors', 1);
-    session_start();
-    
-    require 'vendor/autoload.php';
-    $config = @include('config.php'); // @include = no warning if not exists, $config will be null then
-
-    use Medoo\Medoo;
-
-    $database = new Medoo([
-        'database_type' => 'mysql',
-        'database_name' => 'php_glossar',
-        'server' => 'localhost',
-        'username' => 'root',
-        'password' => 'root',
-        'charset' => 'utf8',
-        'port' => $config['database_port'] ?? 3306, // ??: if !isset(config[port]) take 3306
-    ]);
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // check authentication
-        $user = $database->select('name', 'users', [ // field, table, conditions
-            'sessionid' => session_id()
-        ]);
-        if (!$user) {
-            header('HTTP/1.1 403 Forbidden');
-            include('403.php');
-            exit;
-        }
-
-        $term = $_POST['term'] ?? null;
-        $description = $_POST['description'] ?? null;
-        if ($term && $description) {
-            $database->insert("glossar", [
-                'term' => $term,
-                'description' => $description
-            ]);
-            header ('Location: /');
-            exit;
-        }
-    }
-
-
-    $entries = $database->select('glossar', '*');
-?>
+<?php require_once 'init.php'; ?>
 
 <html>
 
@@ -54,6 +10,15 @@
     </head>
 
     <body>
+
+        <?php
+            if ($auth->user) {
+                echo $auth->user['username'] . ' <a href="logout.php">Logout</a>';
+            } else {
+                echo '<a href="login.php">Login</a>';
+            }
+        ?>
+
         <h1>Glossar</h1>
 
         <?php
@@ -61,22 +26,30 @@
 
         <table class="table">
             <?php
+                $entries = $database->select('glossar', '*');
                 foreach ($entries as $entry) {
             ?>
             <tr>
                 <td><?= $entry['term'] ?></td>
                 <td><?= $entry['description'] ?></td>
-            </tr>    
+            </tr>
             <?php
                 } // close foreach block
             ?>
         </table>
 
-        <form method="POST">
-            Term: <input name="term">
-            Beschreibung: <input name="description">
-            <button type="submit">Eintragen</button>
-        </form>
+        <?php
+        if ($auth->user) {
+            echo <<<EOL
+            <form method="POST" action="add.php">
+                Term: <input name="term">
+                Beschreibung: <input name="description">
+                <button type="submit">Eintragen</button>
+            </form>
+EOL;
+        }
+        ?>
+
 
     </body>
 
